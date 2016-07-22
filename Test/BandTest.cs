@@ -81,6 +81,70 @@ namespace BandTracker
       Assert.Equal(testBand, result);
     }
 
+    [Fact]
+    public void Test_AddVenue_AddsVenueToBand()
+    {
+      //Arrange
+      Band testBand = new Band("Mow the lawn");
+      testBand.Save();
+
+      Venue testVenue = new Venue("Home stuff");
+      testVenue.Save();
+
+      //Act
+      testBand.AddVenue(testVenue);
+
+      List<Venue> result = testBand.GetVenues();
+      List<Venue> testList = new List<Venue>{testVenue};
+
+      //Assert
+      Assert.Equal(testList, result);
+    }
+
+    [Fact]
+    public void Test_GetVenues_ReturnsAllBandVenues()
+    {
+      //Arrange
+      Band testBand = new Band("Mow the lawn");
+      testBand.Save();
+
+      Venue testVenue1 = new Venue("Home stuff");
+      testVenue1.Save();
+
+      Venue testVenue2 = new Venue("Work stuff");
+      testVenue2.Save();
+
+      //Act
+      testBand.AddVenue(testVenue1);
+      List<Venue> result = testBand.GetVenues();
+      List<Venue> testList = new List<Venue> {testVenue1};
+
+      //Assert
+      Assert.Equal(testList, result);
+    }
+
+    [Fact]
+    public void Test_Delete_DeletesBandAssociationsFromDatabase()
+    {
+      //Arrange
+      Venue testVenue = new Venue("Home stuff");
+      testVenue.Save();
+
+      string testDescription = "Mow the lawn";
+      Band testBand = new Band(testDescription);
+      testBand.Save();
+
+      //Act
+      testBand.AddVenue(testVenue);
+      testBand.Delete();
+
+      List<Band> resultVenueBands = testVenue.GetBands();
+      List<Band> testVenueBands = new List<Band> {};
+
+      //Assert
+      Assert.Equal(testVenueBands, resultVenueBands);
+    }
+
     public void Dispose()
     {
       Band.DeleteAll();

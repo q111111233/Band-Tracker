@@ -102,6 +102,74 @@ namespace BandTracker
       Assert.Equal(testVenueList, resultVenues);
     }
 
+    [Fact]
+    public void Test_AddBand_AddsBandToVenue()
+    {
+      //Arrange
+      Venue testVenue = new Venue("Household chores");
+      testVenue.Save();
+
+      Band testBand = new Band("Mow the lawn");
+      testBand.Save();
+
+      Band testBand2 = new Band("Water the garden");
+      testBand2.Save();
+
+      //Act
+      testVenue.AddBand(testBand);
+      testVenue.AddBand(testBand2);
+
+      List<Band> result = testVenue.GetBands();
+      List<Band> testList = new List<Band>{testBand, testBand2};
+
+      //Assert
+      Assert.Equal(testList, result);
+    }
+
+    [Fact]
+    public void Test_GetBands_ReturnsAllVenueBands()
+    {
+      //Arrange
+      Venue testVenue = new Venue("Household chores");
+      testVenue.Save();
+
+      Band testBand1 = new Band("Mow the lawn");
+      testBand1.Save();
+
+      Band testBand2 = new Band("Buy plane ticket");
+      testBand2.Save();
+
+      //Act
+      testVenue.AddBand(testBand1);
+      List<Band> savedBands = testVenue.GetBands();
+      List<Band> testList = new List<Band> {testBand1};
+
+      //Assert
+      Assert.Equal(testList, savedBands);
+    }
+
+    [Fact]
+    public void Test_Delete_DeletesVenueAssociationsFromDatabase()
+    {
+      //Arrange
+      Band testBand = new Band("Mow the lawn");
+      testBand.Save();
+
+      string testName = "Home stuff";
+      Venue testVenue = new Venue(testName);
+      testVenue.Save();
+
+      //Act
+      testVenue.AddBand(testBand);
+      testVenue.Delete();
+
+      List<Venue> resultBandVenues = testBand.GetVenues();
+      List<Venue> testBandVenues = new List<Venue> {};
+
+      //Assert
+      Assert.Equal(testBandVenues, resultBandVenues);
+    }
+
     public void Dispose()
     {
       Band.DeleteAll();
