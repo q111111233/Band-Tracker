@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System;
+using System.Globalization;
 
 namespace BandTracker.Objects
 {
@@ -81,7 +82,9 @@ namespace BandTracker.Objects
 
       SqlParameter placeParameter = new SqlParameter();
       placeParameter.ParameterName = "@VenuePlace";
-      placeParameter.Value = this.GetPlace();
+      TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+      placeParameter.Value = textInfo.ToTitleCase(this.GetPlace());
+
       cmd.Parameters.Add(placeParameter);
       SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -228,7 +231,8 @@ namespace BandTracker.Objects
 
       SqlParameter newNameParameter = new SqlParameter();
       newNameParameter.ParameterName = "@NewName";
-      newNameParameter.Value = newName;
+      TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+      newNameParameter.Value = textInfo.ToTitleCase(newName);
       cmd.Parameters.Add(newNameParameter);
 
 
