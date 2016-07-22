@@ -82,27 +82,6 @@ namespace BandTracker
     }
 
     [Fact]
-    public void Test_Delete_DeletesVenueFromDatabase()
-    {
-      //Arrange
-      string name1 = "Home stuff";
-      Venue testVenue1 = new Venue(name1);
-      testVenue1.Save();
-
-      string name2 = "Work stuff";
-      Venue testVenue2 = new Venue(name2);
-      testVenue2.Save();
-
-      //Act
-      testVenue1.Delete();
-      List<Venue> resultVenues = Venue.GetAll();
-      List<Venue> testVenueList = new List<Venue> {testVenue2};
-
-      //Assert
-      Assert.Equal(testVenueList, resultVenues);
-    }
-
-    [Fact]
     public void Test_AddBand_AddsBandToVenue()
     {
       //Arrange
@@ -168,6 +147,24 @@ namespace BandTracker
 
       //Assert
       Assert.Equal(testBandVenues, resultBandVenues);
+    }
+
+    [Fact]
+    public void Test_Update_UpdatesVenueInDatabase()
+    {
+      //Arrange
+      string name = "Home stuff";
+      Venue testVenue = new Venue(name);
+      testVenue.Save();
+      string newName = "Work stuff";
+
+      //Act
+      testVenue.Update(newName);
+
+      string result = testVenue.GetPlace();
+
+      //Assert
+      Assert.Equal(newName, result);
     }
 
     public void Dispose()
