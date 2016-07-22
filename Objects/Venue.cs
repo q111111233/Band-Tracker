@@ -9,11 +9,13 @@ namespace BandTracker.Objects
   {
     private int _id;
     private string _place;
+    private int _popularity;
 
-    public Venue(string Place, int Id = 0)
+    public Venue(string Place, int Popularity, int Id = 0)
     {
       _id = Id;
       _place = Place;
+      _popularity = Popularity;
     }
 
     public override bool Equals(System.Object otherVenue)
@@ -43,6 +45,14 @@ namespace BandTracker.Objects
     {
       _place = newPlace;
     }
+    public int GetPopularity()
+    {
+      return _popularity;
+    }
+    public void SetPopularity(int newPopularity)
+    {
+      _popularity = newPopularity;
+    }
     public static List<Venue> GetAll()
     {
       List<Venue> allVenues = new List<Venue>{};
@@ -57,7 +67,8 @@ namespace BandTracker.Objects
       {
         int venueId = rdr.GetInt32(0);
         string venuePlace = rdr.GetString(1);
-        Venue newVenue = new Venue(venuePlace, venueId);
+        int venuePopularity = rdr.GetInt32(2);
+        Venue newVenue = new Venue(venuePlace, venuePopularity, venueId);
         allVenues.Add(newVenue);
       }
 
@@ -78,12 +89,18 @@ namespace BandTracker.Objects
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("INSERT INTO venues (place) OUTPUT INSERTED.id VALUES (@VenuePlace);", conn);
+      SqlCommand cmd = new SqlCommand("INSERT INTO venues (place, popularity) OUTPUT INSERTED.id VALUES (@VenuePlace, @VenuePopularity);", conn);
 
       SqlParameter placeParameter = new SqlParameter();
       placeParameter.ParameterName = "@VenuePlace";
       TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
       placeParameter.Value = textInfo.ToTitleCase(this.GetPlace());
+
+      SqlParameter popularityParam = new SqlParameter();
+      popularityParam.ParameterName = "@VenuePopularity";
+      popularityParam.Value = this.GetPopularity();
+
+      cmd.Parameters.Add(popularityParam);
 
       cmd.Parameters.Add(placeParameter);
       SqlDataReader rdr = cmd.ExecuteReader();
@@ -125,13 +142,15 @@ namespace BandTracker.Objects
 
       int foundVenueId = 0;
       string foundVenuePlace = null;
+      int foundPopularity = 0;
 
       while(rdr.Read())
       {
         foundVenueId = rdr.GetInt32(0);
         foundVenuePlace = rdr.GetString(1);
+        foundPopularity = rdr.GetInt32(2);
       }
-      Venue foundVenue = new Venue(foundVenuePlace, foundVenueId);
+      Venue foundVenue = new Venue(foundVenuePlace, foundPopularity, foundVenueId);
 
       if (rdr != null)
       {
@@ -188,7 +207,8 @@ namespace BandTracker.Objects
       {
         int bandId = rdr.GetInt32(0);
         string bandName = rdr.GetString(1);
-        Band newBand = new Band(bandName, bandId);
+        int bandPopularity = rdr.GetInt32(2);
+        Band newBand = new Band(bandName, bandPopularity, bandId);
         bands.Add(newBand);
       }
 

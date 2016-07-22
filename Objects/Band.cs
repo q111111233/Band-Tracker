@@ -9,11 +9,13 @@ namespace BandTracker.Objects
   {
     private int _id;
     private string _name;
+    private int _popularity;
 
-    public Band(string Name, int Id = 0)
+    public Band(string Name, int Popularity, int Id = 0)
     {
       _id = Id;
       _name = Name;
+      _popularity = Popularity;
     }
 
     public override bool Equals(System.Object otherBand)
@@ -42,6 +44,14 @@ namespace BandTracker.Objects
     {
       _name = newName;
     }
+    public int GetPopularity()
+    {
+      return _popularity;
+    }
+    public void SetPopularity(int newPopularity)
+    {
+      _popularity = newPopularity;
+    }
     public static List<Band> GetAll()
     {
       List<Band> AllBands = new List<Band>{};
@@ -56,7 +66,8 @@ namespace BandTracker.Objects
       {
         int bandId = rdr.GetInt32(0);
         string bandName = rdr.GetString(1);
-        Band newBand = new Band(bandName, bandId);
+        int bandPopularity = rdr.GetInt32(2);
+        Band newBand = new Band(bandName, bandPopularity, bandId);
         AllBands.Add(newBand);
       }
       if (rdr != null)
@@ -74,7 +85,7 @@ namespace BandTracker.Objects
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("INSERT INTO bands (name) OUTPUT INSERTED.id VALUES (@BandName)", conn);
+      SqlCommand cmd = new SqlCommand("INSERT INTO bands (name, popularity) OUTPUT INSERTED.id VALUES (@BandName, @BandPopularity)", conn);
 
       SqlParameter nameParam = new SqlParameter();
       nameParam.ParameterName = "@BandName";
@@ -82,6 +93,12 @@ namespace BandTracker.Objects
       nameParam.Value = textInfo.ToTitleCase(this.GetName());
 
       cmd.Parameters.Add(nameParam);
+
+      SqlParameter popularityParam = new SqlParameter();
+      popularityParam.ParameterName = "@BandPopularity";
+      popularityParam.Value = this.GetPopularity();
+
+      cmd.Parameters.Add(popularityParam);
 
       SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -122,13 +139,15 @@ namespace BandTracker.Objects
 
       int foundBandId = 0;
       string foundBandName = null;
+      int foundPopularity = 0;
 
       while(rdr.Read())
       {
         foundBandId = rdr.GetInt32(0);
         foundBandName = rdr.GetString(1);
+        foundPopularity = rdr.GetInt32(2);
       }
-      Band foundBand = new Band(foundBandName, foundBandId);
+      Band foundBand = new Band(foundBandName, foundPopularity, foundBandId);
 
       if (rdr != null)
       {
@@ -186,7 +205,8 @@ namespace BandTracker.Objects
       {
         int venueId = rdr.GetInt32(0);
         string venuePlace = rdr.GetString(1);
-        Venue newVenue = new Venue(venuePlace, venueId);
+        int venuePopularity = rdr.GetInt32(2);
+        Venue newVenue = new Venue(venuePlace, venuePopularity, venueId);
         venues.Add(newVenue);
       }
 

@@ -26,7 +26,7 @@ namespace BandTracker
         return View["bands_form.cshtml"];
       };
       Post["/bands/new"] = _ => {
-        Band newBand = new Band(Request.Form["band-name"]);
+        Band newBand = new Band(Request.Form["band-name"], Request.Form["band-popularity"]);
         newBand.Save();
         return View["success.cshtml"];
       };
@@ -34,7 +34,7 @@ namespace BandTracker
         return View["venues_form.cshtml"];
       };
       Post["/venues/new"] = _ => {
-        Venue newVenue = new Venue(Request.Form["venue-name"]);
+        Venue newVenue = new Venue(Request.Form["venue-name"], Request.Form["venue-popularity"]);
         newVenue.Save();
         return View["success.cshtml"];
       };
@@ -63,13 +63,27 @@ namespace BandTracker
       Post["band/add_venue"] = _ => {
         Venue venue = Venue.Find(Request.Form["venue-id"]);
         Band band = Band.Find(Request.Form["band-id"]);
-        band.AddVenue(venue);
+        if(band.GetPopularity() < venue.GetPopularity())
+        {
+          return View["failure.cshtml"];
+        }
+        else
+        {
+          band.AddVenue(venue);
+        }
         return View["success.cshtml"];
       };
       Post["venue/add_band"] = _ => {
         Venue venue = Venue.Find(Request.Form["venue-id"]);
         Band band = Band.Find(Request.Form["band-id"]);
-        venue.AddBand(band);
+        if(band.GetPopularity() < venue.GetPopularity())
+        {
+          return View["failure.cshtml"];
+        }
+        else
+        {
+          venue.AddBand(band);
+        }
         return View["success.cshtml"];
       };
       Delete["/delete_venues/{id}"] = parameters => {
