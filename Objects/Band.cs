@@ -169,50 +169,28 @@ namespace BandTracker.Objects
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("SELECT venue_id FROM bands_venues WHERE band_id = @BandId;", conn);
+      SqlCommand cmd = new SqlCommand("SELECT venues.* FROM bands JOIN bands_venues ON (bands.id = bands_venues.band_id) JOIN venues ON (bands_venues.venue_id = venues.id) WHERE bands.id = @BandId", conn);
+      SqlParameter BandIdParam = new SqlParameter();
+      BandIdParam.ParameterName = "@BandId";
+      BandIdParam.Value = this.GetId().ToString();
 
-      SqlParameter bandIdParameter = new SqlParameter();
-      bandIdParameter.ParameterName = "@BandId";
-      bandIdParameter.Value = this.GetId();
-      cmd.Parameters.Add(bandIdParameter);
+      cmd.Parameters.Add(BandIdParam);
 
       SqlDataReader rdr = cmd.ExecuteReader();
 
-      List<int> venueIds = new List<int> {};
+      List<Venue> venues = new List<Venue>{};
 
-      while (rdr.Read())
+      while(rdr.Read())
       {
         int venueId = rdr.GetInt32(0);
-        venueIds.Add(venueId);
+        string venuePlace = rdr.GetString(1);
+        Venue newVenue = new Venue(venuePlace, venueId);
+        venues.Add(newVenue);
       }
+
       if (rdr != null)
       {
         rdr.Close();
-      }
-
-      List<Venue> venues = new List<Venue> {};
-
-      foreach (int venueId in venueIds)
-      {
-        SqlCommand venueQuery = new SqlCommand("SELECT * FROM venues WHERE id = @VenueId;", conn);
-
-        SqlParameter venueIdParameter = new SqlParameter();
-        venueIdParameter.ParameterName = "@VenueId";
-        venueIdParameter.Value = venueId;
-        venueQuery.Parameters.Add(venueIdParameter);
-
-        SqlDataReader queryReader = venueQuery.ExecuteReader();
-        while (queryReader.Read())
-        {
-          int thisVenueId = queryReader.GetInt32(0);
-          string venueName = queryReader.GetString(1);
-          Venue foundVenue = new Venue(venueName, thisVenueId);
-          venues.Add(foundVenue);
-        }
-        if (queryReader != null)
-        {
-          queryReader.Close();
-        }
       }
       if (conn != null)
       {

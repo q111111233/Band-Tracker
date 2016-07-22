@@ -121,14 +121,14 @@ namespace BandTracker.Objects
       SqlDataReader rdr = cmd.ExecuteReader();
 
       int foundVenueId = 0;
-      string foundVenueDescription = null;
+      string foundVenuePlace = null;
 
       while(rdr.Read())
       {
         foundVenueId = rdr.GetInt32(0);
-        foundVenueDescription = rdr.GetString(1);
+        foundVenuePlace = rdr.GetString(1);
       }
-      Venue foundVenue = new Venue(foundVenueDescription, foundVenueId);
+      Venue foundVenue = new Venue(foundVenuePlace, foundVenueId);
 
       if (rdr != null)
       {
@@ -170,47 +170,28 @@ namespace BandTracker.Objects
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("SELECT band_id FROM bands_venues WHERE venue_id = @VenueId;", conn);
-      SqlParameter venueIdParameter = new SqlParameter();
-      venueIdParameter.ParameterName = "@VenueId";
-      venueIdParameter.Value = this.GetId();
-      cmd.Parameters.Add(venueIdParameter);
+      SqlCommand cmd = new SqlCommand("SELECT bands.* FROM venues JOIN bands_venues ON (venues.id = bands_venues.venue_id) JOIN bands ON (bands_venues.band_id = bands.id) WHERE venues.id = @VenueId", conn);
+      SqlParameter VenueIdParam = new SqlParameter();
+      VenueIdParam.ParameterName = "@VenueId";
+      VenueIdParam.Value = this.GetId().ToString();
+
+      cmd.Parameters.Add(VenueIdParam);
 
       SqlDataReader rdr = cmd.ExecuteReader();
 
-      List<int> bandIds = new List<int> {};
+      List<Band> bands = new List<Band>{};
+
       while(rdr.Read())
       {
         int bandId = rdr.GetInt32(0);
-        bandIds.Add(bandId);
+        string bandName = rdr.GetString(1);
+        Band newBand = new Band(bandName, bandId);
+        bands.Add(newBand);
       }
+
       if (rdr != null)
       {
         rdr.Close();
-      }
-
-      List<Band> bands = new List<Band> {};
-      foreach (int bandId in bandIds)
-      {
-        SqlCommand bandQuery = new SqlCommand("SELECT * FROM bands WHERE id = @BandId;", conn);
-
-        SqlParameter bandIdParameter = new SqlParameter();
-        bandIdParameter.ParameterName = "@BandId";
-        bandIdParameter.Value = bandId;
-        bandQuery.Parameters.Add(bandIdParameter);
-
-        SqlDataReader queryReader = bandQuery.ExecuteReader();
-        while(queryReader.Read())
-        {
-              int thisBandId = queryReader.GetInt32(0);
-              string bandDescription = queryReader.GetString(1);
-              Band foundBand = new Band(bandDescription, thisBandId);
-              bands.Add(foundBand);
-        }
-        if (queryReader != null)
-        {
-          queryReader.Close();
-        }
       }
       if (conn != null)
       {
