@@ -86,6 +86,20 @@ namespace BandTracker
         SelectedVenue.Update(Request.Form["venue-name"]);
         return View["venues.cshtml", Venue.GetAll()];
       };
+      Delete["/delete_bands/{id}"] = parameters => {
+        Band SelectedBand = Band.Find(parameters.id);
+        SelectedBand.Delete();
+        return View["bands.cshtml", Band.GetAll()];
+      };
+      Get["/edit_bands/{id}"] = parameters => {
+        Band SelectedBand = Band.Find(parameters.id);
+        return View["band_edit.cshtml", SelectedBand];
+      };
+      Patch["/edit_bands/{id}"] = parameters => {
+        Band SelectedBand = Band.Find(parameters.id);
+        SelectedBand.Update(Request.Form["band-name"]);
+        return View["bands.cshtml", Band.GetAll()];
+      };
     }
   }
 }
